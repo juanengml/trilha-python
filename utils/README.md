@@ -18,27 +18,57 @@ Este guia irá te orientar a usar o Replit para desenvolvimento, além de config
 2. No campo de busca, procure por .
 3. Clique no botão **+** para instalar o Flask no seu projeto.
 4. Agora você pode adicionar o seguinte código no arquivo  para iniciar uma aplicação Flask:
-
-
-
 5. Após isso, clique no botão **Run** no topo da tela para executar sua aplicação Flask.
+
+---
+
+Aqui está a versão ajustada do tutorial usando o serviço gratuito de banco de dados MySQL [FreeDB.tech](https://freedb.tech):
 
 ---
 
 ## 3. Instalando e Configurando MySQL no Replit
 
-### Utilizando um Banco de Dados Externo MySQL
-O Replit não possui suporte nativo para hospedar um banco MySQL localmente, então você precisará usar um serviço de banco de dados externo, como [ClearDB](https://www.cleardb.com/) ou [PlanetScale](https://planetscale.com/).
+### Utilizando um Banco de Dados Externo MySQL com FreeDB.tech
 
-1. **Crie uma conta** em um desses serviços e configure um banco de dados.
-2. Instale o pacote  no Replit:
-   - Clique em **Packages**.
-   - Busque por  e clique em **+** para instalar.
-3. Conecte-se ao banco de dados MySQL em seu código:
+O Replit não suporta nativamente um banco de dados MySQL local, mas você pode usar o [FreeDB.tech](https://freedb.tech), um serviço gratuito de banco de dados MySQL.
 
+### Passos Simples para Configurar um Banco de Dados MySQL no FreeDB.tech:
 
+1. **Crie uma conta no FreeDB.tech**:
+   - Acesse [FreeDB.tech](https://freedb.tech).
+   - Registre-se e crie um banco de dados MySQL.
 
-4. Esse código conecta-se ao banco MySQL remoto e imprime as tabelas existentes.
+2. **No Replit, instale o pacote `mysql-connector-python`**:
+   - No painel esquerdo do Replit, clique na aba **Packages**.
+   - No campo de busca, digite `mysql-connector-python`.
+   - Clique em **+** para instalar o pacote.
+
+3. **Conectando ao Banco de Dados**:
+   Use o código abaixo para se conectar ao banco de dados MySQL que você criou no FreeDB.tech:
+
+   ```python
+   import mysql.connector
+
+   # Substitua pelos detalhes do seu banco no FreeDB.tech
+   db = mysql.connector.connect(
+       host="freedb.tech",       # Host do banco
+       user="seu-usuario",       # Usuário do FreeDB.tech
+       password="sua-senha",     # Senha do FreeDB.tech
+       database="seu-banco"      # Nome do banco de dados
+   )
+
+   cursor = db.cursor()
+
+   # Testa a conexão listando as tabelas do banco de dados
+   cursor.execute("SHOW TABLES")
+
+   for table in cursor:
+       print(table)
+   ```
+
+4. **Teste a Conexão**:
+   - Execute o código no Replit.
+   - Se a conexão estiver configurada corretamente, você verá a lista de tabelas do banco de dados (ou nada, se o banco estiver vazio).
 
 ---
 
