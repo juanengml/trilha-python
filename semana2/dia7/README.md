@@ -10,7 +10,5 @@ Todos os exercícios devem ser entregues através do [Replit](https://replit.com
 - [ ] **Exercício 2 (Fácil):** Insira três registros de usuários na tabela .
 - [ ] **Exercício 3 (Médio):** Escreva um programa que conecte ao banco de dados MySQL e liste todos os usuários.
 - [ ] **Exercício 4 (Médio):** Implemente um CRUD simples com Flask e MySQL para criar, listar, atualizar e excluir usuários.
-- [ ] **Exercício 5 (
-
-Difícil):** Desenvolva um sistema de login simples usando Flask e MySQL, onde os usuários podem se cadastrar e fazer login.
+- [ ] **Exercício 5 (Difícil):** Desenvolva um sistema de login simples usando Flask e MySQL, onde os usuários podem se cadastrar e fazer login.
 
