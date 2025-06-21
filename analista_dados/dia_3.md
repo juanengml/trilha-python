@@ -1,146 +1,124 @@
-## 🎯 Exercício de BI: Vendas, Receita e Churn
 
-### **Contexto:**
+## 🧪 **Exercício Prático com Pandas + MySQL**
 
-Você trabalha em uma empresa de consultoria de investimentos. A empresa possui dados simulados no banco `cryptodb` com informações sobre clientes, planos vendidos, status de vendas e cancelamentos. O objetivo é analisar a performance de vendas e o comportamento de cancelamento de clientes.
+### 🎯 Objetivo:
 
----
-
-## 📌 Parte 1: Crie o Dashboard de **Vendas e Receita**
-
-### **Objetivos:**
-
-* Acompanhar o desempenho mensal de vendas
-* Identificar os planos mais vendidos
-* Estimar receita mensal recorrente (MRR)
-* Calcular o ticket médio por cliente
-
-### **Indicadores e Tarefas:**
-
-1. 📈 **Receita total por mês**
-
-   ```sql
-   SELECT 
-       DATE_FORMAT(data_venda, '%Y-%m') AS mes,
-       SUM(c.valor_mensal) AS receita_total
-   FROM vendas v
-   JOIN consultorias c ON v.id_consultoria = c.id_consultoria
-   WHERE status = 'ativa'
-   GROUP BY mes
-   ORDER BY mes;
-   ```
-
-2. 📊 **Planos mais vendidos**
-
-   ```sql
-   SELECT 
-       c.nome AS plano,
-       COUNT(*) AS vendas
-   FROM vendas v
-   JOIN consultorias c ON v.id_consultoria = c.id_consultoria
-   GROUP BY plano
-   ORDER BY vendas DESC;
-   ```
-
-3. 💰 **Ticket médio por cliente**
-
-   ```sql
-   SELECT 
-       v.id_cliente,
-       AVG(c.valor_mensal) AS ticket_medio
-   FROM vendas v
-   JOIN consultorias c ON v.id_consultoria = c.id_consultoria
-   GROUP BY v.id_cliente
-   ORDER BY ticket_medio DESC;
-   ```
-
-4. 📅 **Vendas por trimestre**
-
-   ```sql
-   SELECT 
-       QUARTER(data_venda) AS trimestre,
-       YEAR(data_venda) AS ano,
-       COUNT(*) AS qtd_vendas
-   FROM vendas
-   GROUP BY ano, trimestre
-   ORDER BY ano, trimestre;
-   ```
+Praticar leitura de dados com `pandas`, manipulação de DataFrames e análise de indicadores de vendas e churn usando **dados reais do banco** `cryptodb`.
 
 ---
 
-## 📌 Parte 2: Crie o Dashboard de **Churn e Retenção**
+## ✅ Parte 1 – Conexão e Leitura dos Dados
 
-### **Objetivos:**
+### **Tarefa 1:** Leia as 3 tabelas principais diretamente do banco:
 
-* Medir o churn mensal
-* Acompanhar total de clientes ativos
-* Calcular tempo médio de permanência
-* Analisar perfis com maior cancelamento
+* `clientes`
+* `vendas`
+* `consultorias`
 
-### **Indicadores e Tarefas:**
+> Use `pandas.read_sql()` e `mysql.connector`.
 
-1. 📉 **Taxa de churn mensal**
+```python
+import pandas as pd
+import mysql.connector
 
-   ```sql
-   SELECT 
-       DATE_FORMAT(data_cancelamento, '%Y-%m') AS mes,
-       COUNT(*) AS cancelamentos
-   FROM vendas
-   WHERE status = 'cancelada'
-   GROUP BY mes
-   ORDER BY mes;
-   ```
+conn = mysql.connector.connect(
+    host='localhost',
+    user='root',
+    password='SUA_SENHA',
+    database='cryptodb'
+)
 
-2. 👥 **Total de clientes ativos por mês**
-
-   ```sql
-   SELECT 
-       DATE_FORMAT(data_venda, '%Y-%m') AS mes,
-       COUNT(DISTINCT id_cliente) AS clientes_ativos
-   FROM vendas
-   WHERE status = 'ativa'
-   GROUP BY mes
-   ORDER BY mes;
-   ```
-
-3. ⏳ **Tempo médio de permanência**
-
-   ```sql
-   SELECT 
-       AVG(DATEDIFF(data_cancelamento, data_venda)) AS dias_medio
-   FROM vendas
-   WHERE status = 'cancelada';
-   ```
-
-4. 🧠 **Churn por plano**
-
-   ```sql
-   SELECT 
-       c.nome AS plano,
-       COUNT(*) AS cancelamentos
-   FROM vendas v
-   JOIN consultorias c ON v.id_consultoria = c.id_consultoria
-   WHERE v.status = 'cancelada'
-   GROUP BY c.nome;
-   ```
+clientes = pd.read_sql("SELECT * FROM clientes", conn)
+vendas = pd.read_sql("SELECT * FROM vendas", conn)
+consultorias = pd.read_sql("SELECT * FROM consultorias", conn)
+```
 
 ---
 
-## 🛠 Dicas para montar no Metabase:
+## ✅ Parte 2 – Análises de Vendas e Receita
 
-* Use **gráficos de linha** para métricas temporais (churn, receita)
-* Use **gráficos de barras horizontais** para planos ou perfis de cliente
-* Crie **filtros de tempo, estado, faixa etária, tipo de plano**
-* Adicione uma meta mensal fictícia para comparar com receita real
+### **Tarefa 2:** Calcule a receita total por mês
+
+* Junte `vendas` e `consultorias`
+* Filtre `status = 'ativa'`
+* Agrupe por mês de `data_venda`
+* Calcule a soma de `valor_mensal`
+
+```python
+vendas_ativas = vendas[vendas['status'] == 'ativa']
+df = vendas_ativas.merge(consultorias, on='id_consultoria')
+df['mes'] = pd.to_datetime(df['data_venda']).dt.to_period('M')
+receita_mensal = df.groupby('mes')['valor_mensal'].sum().reset_index()
+```
 
 ---
 
-## 🧪 Extra (opcional):
+### **Tarefa 3:** Descubra o plano mais vendido
 
-Se quiser, você pode usar também os dados de:
-
-* `interacoes_suporte` → para medir impacto do suporte no churn
-* `feedback_cancelamento` → para identificar os principais motivos de saída
+```python
+mais_vendidos = vendas.groupby('id_consultoria').size().reset_index(name='quantidade')
+mais_vendidos = mais_vendidos.merge(consultorias, on='id_consultoria').sort_values(by='quantidade', ascending=False)
+```
 
 ---
 
+## ✅ Parte 3 – Churn e Retenção
+
+### **Tarefa 4:** Calcule o churn mensal
+
+```python
+vendas_canceladas = vendas[vendas['status'] == 'cancelada'].copy()
+vendas_canceladas['mes'] = pd.to_datetime(vendas_canceladas['data_cancelamento']).dt.to_period('M')
+churn_mensal = vendas_canceladas.groupby('mes').size().reset_index(name='cancelamentos')
+```
+
+---
+
+### **Tarefa 5:** Calcule o tempo médio até cancelamento
+
+```python
+vendas_canceladas['tempo_dias'] = (
+    pd.to_datetime(vendas_canceladas['data_cancelamento']) - pd.to_datetime(vendas_canceladas['data_venda'])
+).dt.days
+
+tempo_medio = vendas_canceladas['tempo_dias'].mean()
+```
+
+---
+
+### **Tarefa 6:** Qual estado tem mais churn?
+
+```python
+cancelados = vendas_canceladas.merge(clientes, on='id_cliente')
+churn_por_estado = cancelados.groupby('estado').size().reset_index(name='cancelamentos').sort_values(by='cancelamentos', ascending=False)
+```
+
+---
+
+## 📋 Bônus – Visualização com Pandas
+
+Você pode visualizar os dados direto com:
+
+```python
+import matplotlib.pyplot as plt
+
+# Receita mensal
+receita_mensal.plot(x='mes', y='valor_mensal', kind='line', title='Receita por Mês')
+plt.show()
+
+# Churn mensal
+churn_mensal.plot(x='mes', y='cancelamentos', kind='bar', title='Churn Mensal')
+plt.show()
+```
+
+---
+
+### 🧠 O que o exercício treina:
+
+* Conexão com banco MySQL
+* Leitura e junção de dados com `pandas`
+* Agrupamentos, filtros e transformações
+* Análise de churn e vendas
+* Visualização simples com `matplotlib`
+
+---
