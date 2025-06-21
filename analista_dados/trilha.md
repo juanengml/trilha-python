@@ -66,7 +66,7 @@
     * Crie uma planilha ou código para calcular o **CAC** a partir de dados de vendas e custo de marketing.
     * Crie um script para calcular o **Churn Rate** com dados de clientes.
     * Calcule o **LTV** com dados simulados.
-
+  
 ---
 
 ### **Dia 5: Automação de Processos de Dados (ETL e Python)**
