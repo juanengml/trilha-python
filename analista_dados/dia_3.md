@@ -21,12 +21,14 @@ Praticar leitura de dados com `pandas`, manipulação de DataFrames e análise d
 import pandas as pd
 import mysql.connector
 
-conn = mysql.connector.connect(
-    host='localhost',
-    user='root',
-    password='SUA_SENHA',
-    database='cryptodb'
-)
+DB_CONFIG = {
+    'user': 'root',
+    'password': 'casaos',
+    'host': '100.121.241.59',
+    'port': 3307,
+    'database': 'cryptodb'
+}
+conn = mysql.connector.connect(**DB_CONFIG)
 
 clientes = pd.read_sql("SELECT * FROM clientes", conn)
 vendas = pd.read_sql("SELECT * FROM vendas", conn)
